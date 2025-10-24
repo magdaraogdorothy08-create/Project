@@ -1,0 +1,50 @@
+:root {
+  --lnu-blue: #002366;
+  --lnu-gold: #FFD700;
+  --lnu-light: #faf9f6;
+  --lnu-dark: #333;
+}
+
+/* Global */
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background-color: var(--lnu-light);
+  color: var(--lnu-dark);
+}
+
+/* Header & Footer */
+header.navbar, footer {
+  background-color: var(--lnu-blue);
+  color: white;
+}
+
+footer {
+  padding: 10px 0;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--lnu-blue);
+  border-color: var(--lnu-blue);
+}
+.btn-primary:hover {
+  background-color: #001a50;
+  border-color: #001a50;
+}
+.btn-outline-primary {
+  color: var(--lnu-blue);
+  border-color: var(--lnu-blue);
+}
+.btn-outline-primary:hover {
+  background-color: var(--lnu-blue);
+  color: white;
+}
+
+/* Cards */
+.card-header {
+  background-color: var(--lnu-gold);
+  color: var(--lnu-dark);
+  font-weight: 600;
+}
