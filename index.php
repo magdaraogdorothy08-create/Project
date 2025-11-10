@@ -17,7 +17,7 @@ if (isset($_SESSION['user_role'])) {
 <body>
 <header class="navbar navbar-dark">
   <div class="container">
-    <span class="navbar-brand fw-bold">CliniCare – LNU</span>
+    <span class="navbar-brand fw-bold">CliniCare – LNUs</span>
   </div>
 </header>
 
