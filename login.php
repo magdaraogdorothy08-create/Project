@@ -4,19 +4,35 @@ include('includes/db_connect.php');
 $error = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $email = $_POST['email'];
-  $password = $_POST['password'];
-  $sql = "SELECT * FROM users WHERE email='$email' AND password='$password'";
-  $result = $conn->query($sql);
-  if ($result->num_rows == 1) {
-    $user = $result->fetch_assoc();
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['user_role'] = $user['role'];
-    $_SESSION['user_name'] = $user['name'];
-    if ($user['role'] == 'doctor') header("Location: doctor/doctor_dashboard.php");
-    else header("Location: patient/patient_dashboard.php");
-    exit();
-  } else $error = "Invalid email or password!";
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows == 1) {
+        $user = $result->fetch_assoc();
+        
+        if (password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_role'] = $user['role'];
+            $_SESSION['user_name'] = $user['name'];
+
+            if ($user['role'] == 'doctor') {
+                header("Location: doctor/doctor_dashboard.php");
+            } else {
+                header("Location: patient/patient_dashboard.php");
+            }
+            exit();
+        } else {
+            $error = "Invalid email or password!";
+        }
+    } else {
+        $error = "Invalid email or password!";
+    }
+    $stmt->close();
 }
 ?>
 <!DOCTYPE html>
@@ -27,15 +43,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="assets/css/style.css" rel="stylesheet">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
+
 <header class="navbar navbar-dark">
   <div class="container">
     <a class="navbar-brand fw-bold text-white" href="index.php">CliniCare – LNU</a>
   </div>
 </header>
 
-<div class="container mt-5" style="max-width:400px;">
-  <div class="card shadow-sm">
+<div class="container flex-grow-1 d-flex align-items-center" style="max-width:400px;">
+  <div class="card shadow-sm w-100">
     <div class="card-header text-center">Login to Your Account</div>
     <div class="card-body">
       <?php if ($error) echo "<div class='alert alert-danger'>$error</div>"; ?>
@@ -55,6 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   </div>
 </div>
 
-<footer>&copy; <?php echo date("Y"); ?> Leyte Normal University – CliniCare</footer>
+<footer class="mt-auto">&copy; <?php echo date("Y"); ?> Leyte Normal University – CliniCare</footer>
+
 </body>
 </html>

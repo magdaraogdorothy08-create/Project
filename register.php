@@ -10,18 +10,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = $_POST['password'];
     $role = $_POST['role'];
 
-    // Check if email already exists
-    $check = $conn->query("SELECT * FROM users WHERE email='$email'");
-    if ($check->num_rows > 0) {
+    $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($result->num_rows > 0) {
         $message = "<div class='alert alert-danger'>Email already exists! Please try another.</div>";
     } else {
-        $sql = "INSERT INTO users (name, email, password, role) VALUES ('$name', '$email', '$password', '$role')";
-        if ($conn->query($sql) === TRUE) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $name, $email, $hashed_password, $role);
+
+        if ($stmt->execute() === TRUE) {
             $message = "<div class='alert alert-success'>Registration successful! You can now <a href='login.php'>login</a>.</div>";
         } else {
-            $message = "<div class='alert alert-danger'>Error: " . $conn->error . "</div>";
+            $message = "<div class='alert alert-danger'>Error: " . $stmt->error . "</div>";
         }
     }
+    $stmt->close();
 }
 ?>
 <!DOCTYPE html>
