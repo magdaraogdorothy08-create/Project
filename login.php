@@ -7,6 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
+    // Also select student_id
     $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->bind_param("s", $email);
     $stmt->execute();
@@ -16,16 +17,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $user = $result->fetch_assoc();
         
         if (password_verify($password, $user['password'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['user_name'] = $user['name'];
+            
+            if ($user['is_active'] == 0) {
+                $error = "Your account has been deactivated. Please contact the administrator.";
+            } 
+            else {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['user_role'] = $user['role'];
+                $_SESSION['user_name'] = $user['name'];
+                // Store Student ID in session
+                $_SESSION['student_id'] = $user['student_id']; 
 
-            if ($user['role'] == 'doctor') {
-                header("Location: doctor/doctor_dashboard.php");
-            } else {
-                header("Location: patient/patient_dashboard.php");
+                if ($user['role'] == 'admin') {
+                    header("Location: admin/admin_dashboard.php");
+                } elseif ($user['role'] == 'doctor') {
+                    header("Location: doctor/doctor_dashboard.php");
+                } elseif ($user['role'] == 'secretary') {
+                    header("Location: secretary/secretary_dashboard.php");
+                } else {
+                    header("Location: patient/patient_dashboard.php");
+                }
+                exit();
             }
-            exit();
         } else {
             $error = "Invalid email or password!";
         }
@@ -45,9 +58,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body class="d-flex flex-column min-vh-100">
 
-<header class="navbar navbar-dark">
-  <div class="container">
-    <a class="navbar-brand fw-bold text-white" href="index.php">CliniCare – LNU</a>
+<header class="navbar navbar-dark sticky-top">
+  <div class="container d-flex justify-content-between align-items-center h-100">
+    
+    <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="#" style="height: 100%; display: flex; align-items: center;">
+        <div style="height: 40px; width: 40px; display: flex; align-items: center; justify-content: center;">
+            <img src="assets/pictures/logo.png" alt="Logo" style="height: 150%; width: auto; max-height: 48px;">
+        </div>
+        <span>CliniCare – Leyte Normal University</span>
+    </a>
+
+    <span id="realtimeClock" class="text-white small fw-bold"></span>
   </div>
 </header>
 
@@ -74,5 +95,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <footer class="mt-auto">&copy; <?php echo date("Y"); ?> Leyte Normal University – CliniCare</footer>
 
+<script>
+function updateClock() {
+    var now = new Date();
+    var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    document.getElementById('realtimeClock').innerText = now.toLocaleString('en-US', options);
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
 </body>
 </html>

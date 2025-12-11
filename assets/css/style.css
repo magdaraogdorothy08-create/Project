@@ -23,10 +23,49 @@ header.navbar, footer {
   color: white;
 }
 
+/* --- UI FIX: Navbar & Dropdown --- */
+header.navbar {
+  height: 60px;
+  /* REMOVED max-height to prevent accidental clipping */
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  
+  /* CRITICAL FIXES: */
+  overflow: visible !important; /* Allow dropdowns to spill out */
+  z-index: 2000 !important;     /* Force header WAY above calendar/background */
+  position: sticky;             /* Ensure it stays at top */
+  top: 0;
+}
+
+/* Ensure the container INSIDE the header also allows overflow */
+header.navbar .container {
+    overflow: visible !important;
+}
+
+/* Forces dropdowns to float above the header and everything else */
+.dropdown-menu {
+  z-index: 2001 !important; /* Higher than header */
+  position: absolute !important;
+  background-color: #ffffff !important; /* Ensure solid white background */
+  border: 1px solid rgba(0,0,0,0.15);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Add shadow for visibility */
+}
+
+/* Footer */
 footer {
   padding: 10px 0;
   text-align: center;
   font-size: 14px;
+}
+
+/* Force the image to submit */
+header.navbar .navbar-brand img {
+  height: 40px !important;    
+  width: auto !important;     
+  max-width: 100%;            
+  object-fit: contain;        
+  display: block;             
 }
 
 /* Buttons */
@@ -102,12 +141,12 @@ footer {
 
 /* --- FullCalendar Single Line Event Fix --- */
 .fc-event-main {
-  flex-wrap: nowrap; /* Prevents the time from stacking on top of the title */
-  overflow: hidden;   /* Hides any content that overflows */
+  flex-wrap: nowrap; 
+  overflow: hidden;   
 }
 
 .fc-event-title {
-  white-space: nowrap;    /* Forces the title onto a single line */
-  overflow: hidden;       /* Hides any part of the title that doesn't fit */
-  text-overflow: ellipsis; /* Adds "..." if the title is too long */
+  white-space: nowrap;    
+  overflow: hidden;       
+  text-overflow: ellipsis; 
 }
